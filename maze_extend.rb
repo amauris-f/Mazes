@@ -62,7 +62,9 @@ class Maze
 	def add_position(trans, dir)
 		x_move = [1, 0, -1, 0]
 		y_move = [0, 1, 0, -1]
-		new_pos = Point.new(trans.x + x_move[dir], trans.y + y_move[dir])
+		new_x = trans.x + x_move[dir]
+		new_y = trans.y + y_move[dir]
+		new_pos = Point.new(new_y, new_y)
 		marked?(trans, dir, new_pos)
 	end
 

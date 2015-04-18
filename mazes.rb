@@ -70,7 +70,7 @@ class Maze
 		end
 	end
 end
-
+#h.420.f
 class Maze_Validate
 	attr_reader :maze
 
@@ -80,18 +80,10 @@ class Maze_Validate
 
 	def validate(maze_s)
 		if maze_s.size != maze.width * maze.length
-			return """
-ERROR: The maze could not be loaded with the given string representation.
-The string representation of the maze
-that you have given will not satisfy the maze that
-you have initialized. Your number of columns is #{maze.columns},
-and your number of rows is #{maze.rows}. So you can have at least
-two walls for each row of cells and column of cells, but potentially
-#{maze.columns + 1} horizontal walls for columns, and potentially #{maze.rows + 1}
-horizontal walls for the rows. This means that you should have a String with a length 
+			return "ERROR: With your number of columns being #{maze.columns},
+and your number of rows being #{maze.rows},you should load a string with a length 
 of #{maze.width * maze.length}. The length of the string that you entered was
-#{maze_s.length} Load unsuccessful.
-"""
+#{maze_s.length} Load unsuccessful."""
 		end
 		check_borders(maze_s)
 	end

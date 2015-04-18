@@ -1,4 +1,5 @@
 #http://stackoverflow.com/questions/28696109/display-extended-ascii-character-in-ruby
+require './maze_extend.rb'
 class Maze
 	attr_reader :columns, :rows, :maze_check, :maze_s, :width, :length
 	attr_reader :maze_a
@@ -29,8 +30,8 @@ class Maze
 		check = maze_check.loaded?
 		if check != true then return check end
 		return @maze_display
-	end 
-	
+	end
+
 	def convert_maze_to_a
 		position = 0
 		(0...length).each do |row_ind|
@@ -62,7 +63,7 @@ class Maze
 					@maze_display += " "
 				elsif row_ind % 2 == 0
 					@maze_display += "-"
-				else 
+				else
 					@maze_display += "|"
 				end
 			end
@@ -70,7 +71,7 @@ class Maze
 		end
 	end
 end
-#h.420.f
+
 class Maze_Validate
 	attr_reader :maze
 
@@ -81,19 +82,17 @@ class Maze_Validate
 	def validate(maze_s)
 		if maze_s.size != maze.width * maze.length
 			return "ERROR: With your number of columns being #{maze.columns},
-and your number of rows being #{maze.rows},you should load a string with a length 
+and your number of rows being #{maze.rows},you should load a string with a length
 of #{maze.width * maze.length}. The length of the string that you entered was
-#{maze_s.length} Load unsuccessful."""
+#{maze_s.length}. Load unsuccessful."
 		end
 		check_borders(maze_s)
 	end
 
 	def check_borders(maze_s)
 		width = maze.width
-		error = """
-ERROR: At least one of your borders has an open space.
-All of the maze's borders must be closed. Load unsuccessful.
-"""
+		error = "ERROR: At least one of your borders has an open space.
+All of the maze's borders must be closed. Load unsuccessful."
 		indexed_maze = maze_s.split(//)
 		maze_s.size.times do |index|
 			if index < width || index > maze_s.size - width
@@ -115,9 +114,9 @@ All of the maze's borders must be closed. Load unsuccessful.
 				if row[index] == "|" && index % 2 == 1
 					return """ERROR: You have a wall in the place of a cell. In every row, a wall
 can only be placed in an even index, while all odd indexes are meant for cell spots. Load unsuccessful."""
-				end 
+				end
 			end
-		end			
+		end
 		cell_check
 	end
 
@@ -131,7 +130,7 @@ can only be placed in an even index, while all odd indexes are meant for cell sp
 because it contains either 0 or 4 walls. Load unsuccessful."""
 				end
 			end
-		end 
+		end
 		return true
 	end
 
@@ -154,11 +153,17 @@ because it contains either 0 or 4 walls. Load unsuccessful."""
 	end
 end
 
+
+
 maze_test = Maze.new(4,4)
-maze_test.load("111111111100010001111010101100010101101110101100000101111011101100000101111111111")
+maze_test.load("111111111100010001111011101100010101101110101100000101111011101100000101111111111")
 puts maze_test.display
+
+point = Point.new(5, 6)
+maze_test.trace(:begX => 0, :begY => 0, :endX =>0, :endY =>3)
 
 maze_test = Maze.new(4,5)
 maze_test.load("111111111100010001111010101100010101101110101100000101111011101101000101100010001101010101111111111")
 puts maze_test.display
 
+maze_test.trace(:begX => 0, :begY => 0, :endX =>3, :endY =>4)

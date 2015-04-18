@@ -21,6 +21,7 @@ class Maze
 	end
 
 	def steps_taken
+		mvmnt = ["Right", "Down", "Left", "Up"]
 		stack = Array.new()
 		transition = @all_paths.pop()
 		while transition.prev_step
@@ -29,7 +30,7 @@ class Maze
 		end
 		(stack.size).times do |step|
 			cell = stack.pop()
-			puts "#{step+1}. From cell: #{cell}, Move #{cell.direction} to #{cell.next}."
+			puts "#{step+1}. From cell: #{cell}, Move #{mvmnt[cell.dir]} to #{cell.next}."
 		end
 	end
 
@@ -61,20 +62,23 @@ class Maze
 	def add_position(trans, dir)
 		x_move = [1, 0, -1, 0]
 		y_move = [0, 1, 0, -1]
-		up_down_etc = ["Right", "Down", "Left", "Up"]
 		new_pos = Point.new(trans.x + x_move[dir], trans.y + y_move[dir])
+		marked?(trans, dir, new_pos)
+	end
+
+	def marked?(trans, dir, new_pos)
 		if !@visited.include?(new_pos)
 			new_pos.prev_step = trans
 			trans.next = new_pos
-			trans.direction = up_down_etc[dir]
+			trans.dir = dir
 			@all_paths.push(new_pos)
 		end
 	end
 
-	def valid_move?(trans, direction)
+	def valid_move?(trans, di)
 			col_ary = trans.x * 2 + 1
 			row_ary = trans.y * 2 + 1
-			case direction
+			case di
 			when 0
 				if maze_a.fetch(row_ary)[col_ary + 1] == "0" then return true end
 			when 1
@@ -96,7 +100,7 @@ end
 
 class Point
 	attr_reader :x, :y
-	attr_accessor :prev_step, :direction, :next
+	attr_accessor :prev_step, :dir, :next
 
 	def initialize(x, y)
 		@x = x

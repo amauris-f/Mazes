@@ -8,8 +8,6 @@ class Maze
 	@maze_s = nil
 	@maze_a
 	@maze_display
-	@visited
-	@all_paths
 
 	def initialize(columns, rows)
 		@columns = columns
@@ -17,6 +15,7 @@ class Maze
 		@width = columns * 2 + 1
 		@length = rows * 2 + 1
 		@maze_check = Maze_Validate.new(self)
+		@trace_or_solve = Maze_Ext_Methods.new(self)
 	end
 
 	def load(maze_s)
@@ -84,221 +83,23 @@ class Maze
 			@maze_display += "|"
 		end
 	end
-
-		def solve(params = {})
+	def trace(params)
 		check = @maze_check.loaded?
 		if check != true then return check end
-		result = traverse(params)
-		if result
-			puts "There is a path between these two points. Use trace to look at the steps."
-		else
-			puts "Unsolvable: There is no path between these two points."
-		end
+		@trace_or_solve.trace_maze(params)
 	end
 
-	def trace(params = {})
+	def solve(params)
 		check = @maze_check.loaded?
 		if check != true then return check end
-		traceable = traverse(params)
-		if traceable
-			steps_taken
-		else
-			puts "Untraceable: There is no path between these two points."
-		end
+		@trace_or_solve.solve_maze(params)
 	end
 
-	def steps_taken
-		mvmnt = ["Right", "Down", "Left", "Up"]
-		stack = Array.new()
-		add_to_stack(stack)
-		(stack.size).times do |step|
-			cell = stack.pop()
-			puts "#{step+1}. From cell: #{cell}, Move #{mvmnt[cell.dir]} to #{cell.next}."
-		end
-	end
-
-	def add_to_stack(stack)
-		transition = @all_paths.pop()
-		while transition.prev_step
-				transition = transition.prev_step
-				stack.push(transition)
-		end
-	end
-
-	def traverse(params)
-		beg_point = Point.new(params[:begX], params[:begY])
-		end_point = Point.new(params[:endX], params[:endY])
-		@all_paths = Array.new()
-		@visited = Array.new()
-		@all_paths.push(beg_point)
-		while !@all_paths.include?(end_point)
-			if @all_paths.empty? then return false end
-			trans = @all_paths.shift()
-			if !@visited.include?(trans) then one_step_moves(trans) end
-		end
-		return true
-	end
-
-	def one_step_moves(trans)
-		@visited.push(trans)
-		(0..3).each do |dir|
-			if valid_move?(trans, dir)
-				add_position(trans, dir)
-			end
-		end
-	end
-
-	def add_position(trans, dir)
-		x_move = [1, 0, -1, 0]
-		y_move = [0, 1, 0, -1]
-		new_x = trans.x + x_move[dir]
-		new_y = trans.y + y_move[dir]
-		new_pos = Point.new(new_x, new_y)
-		marked?(trans, dir, new_pos)
-	end
-
-	def marked?(trans, dir, new_pos)
-		if !@visited.include?(new_pos)
-			new_pos.prev_step = trans
-			trans.next = new_pos
-			trans.dir = dir
-			@all_paths.push(new_pos)
-		end
-	end
-
-	def valid_move?(trans, dir)
-			col_ary = trans.x * 2 + 1
-			row_ary = trans.y * 2 + 1
-			case dir
-			when 0
-				if maze_a.fetch(row_ary)[col_ary + 1] == "0" then return true end
-			when 1
-				if maze_a.fetch(row_ary + 1)[col_ary] == "0" then return true end
-			when 2
-				if maze_a.fetch(row_ary)[col_ary - 1] == "0" then return true end
-			when 3
-				if maze_a.fetch(row_ary - 1)[col_ary] == "0" then return true end
-			else
-				return false
-			end
-	end
 	def redesign()
-		test = Maze_redesign.new(self)
-		@maze_a = test.redesign_maze()
-		#@maze_a = new_a
+		new_maze = Maze_Redesign.new(self)
+		@maze_a = new_maze.reconstruct()
 		draw_maze
 	end
-	# def redesign()
-	# 	@maze_a = Array.new(length){|i| Array.new(width) { |i| "1"}}
-	# 	reset_cells
-	# 	create_walls
-	# 	check_for_invalid
-	# 	draw_maze
-	# end
-	# private
-	# def reset_cells
-	# 	(1...length - 1).each do |row|
-	# 		(1...width - 1).each do |col|
-	# 			if row.even? && col.even?
-	# 				maze_a.fetch(row)[col] = "1"
-	# 			else
-	# 				maze_a.fetch(row)[col] = "0"
-	# 			end
-	# 		end
-	# 	end
-	# end
-
-	# def create_walls
-	# 	(1...length - 1).step(2) do |row|
-	# 		(1...width).step(2) do |col|
-	# 			spaces = adj_walls(row, col)
-	# 			choose_sides(spaces, row, col)
-	# 		end
-	# 	end
-	# end
-
-	# def check_for_invalid
-	# 	(1...length - 1).step(2) do |row|
-	# 		(1...width).step(2) do |col|
-	# 			spaces = adj_walls(row, col)
-	# 			if spaces.empty?
-	# 				walls = non_borders(row, col)
-	# 				construct(row, col, walls[rand(walls.size)], "0")
-	# 			end
-	# 		end
-	# 	end
-	# end
-
-	# def non_borders(row, col) 
-	# 	walls = [0, 1, 2, 3]
-	# 	walls = exclude_top_bottom(col, walls)
-	# 	walls =exclude_maze_sides(row, walls)
-	# 	return walls
-	# end
-
-	# def exclude_maze_sides(row, walls)
-	# 	if row + 1 == length - 1
-	# 		walls.delete(2)
-	# 	elsif row - 1 == 0
-	# 		walls.delete(0)
-	# 	end
-	# 	return walls
-	# end 
-
-	# def exclude_top_bottom(col, walls)
-	# 	if col - 1 == 0
-	# 		walls.delete(3)
-	# 	elsif col + 1 == width - 1
-	# 		walls.delete(1)
-	# 	end
-	# 	return walls
-	# end
-
-	# def adj_walls(row, col)
-	# 	wall = Array.new()
-	# 	sides = [0, 1, 2, 3]
-	# 	wall = find_walls(row, col, 1, 1, wall)
-	# 	wall = find_walls(row, col, -1, 0, wall)
-	# 	spaces_left = sides - wall
-	# 	return spaces_left
-	# end
-
-	# def find_walls(row, col, int, dir, wall)
-	# 	x_val = 3 - 2 * (dir)
-	# 	y_val = 2 * dir
-	# 	if maze_a.fetch(row + int)[col] == "1" then wall.push(y_val) end
-	# 	if maze_a.fetch(row)[col + int] == "1" then wall.push(x_val) end
-	# 	return wall
-	# end
-
-	# def choose_sides(spaces, row, col)
-	# 	if spaces.empty?
-	# 		walls = non_borders(row, col)
-	# 		choose_side =  walls[rand(walls.size)]
-	# 		construct(row, col, choose_side, "0")
-	# 	else
-	# 		(0...3).each do |mult|
-	# 			prob = (3 - mult) * 3
-	# 			if spaces.size > 2 && rand(0...10) >= prob
-	# 				choose_side = spaces.delete_at(rand(spaces.length))
-	# 				construct(row, col, choose_side, "1")
-	# 			end
-	# 		end
-	# 	end
-	# end
-
-	# def construct(row, col, choose_side, w_or_s)
-	# 	case choose_side
-	# 	when 0
-	# 		maze_a.fetch(row - 1)[col] = w_or_s
-	# 	when 1
-	# 		maze_a.fetch(row)[col + 1] = w_or_s
-	# 	when 2
-	# 		maze_a.fetch(row + 1)[col] = w_or_s
-	# 	else
-	# 		maze_a.fetch(row)[col - 1] = w_or_s
-	# 	end
-	# end
 end
 
 class Maze_Validate
@@ -390,26 +191,6 @@ because it contains either 0 or 4 walls. Load unsuccessful."""
 			return true
 		end
 	end
-
-
-end
-
-class Point
-	attr_reader :x, :y
-	attr_accessor :prev_step, :dir, :next
-
-	def initialize(x, y)
-		@x = x
-		@y = y
-	end
-
-	def ==(other_point)
-		self.x == other_point.x && self.y == other_point.y
-	end
-
-	def to_s
-			return "(#{x} , #{y})"
-	end
 end
 
 
@@ -417,9 +198,10 @@ end
  maze_test = Maze.new(4,4)
  maze_test.load("111111111100010001111010101100010101101110101100000101111011101100000101111111111")
  maze_test.display
- maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
+
  maze_test.redesign()
  maze_test.display
+ maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
 
  # maze_test = Maze.new(4,5)
  # maze_test.load("111111111100010001111010101100010101101110101100000101111011101101000101101010101101010101111111111")

@@ -177,99 +177,7 @@ class Maze
 				return false
 			end
 	end
-end
-
-class Maze_Validate
-	attr_reader :maze
-
-	def initialize(maze)
-		@maze = maze
-	end
-
-	def validate(maze_s)
-		if maze_s.size != maze.width * maze.length
-			return "ERROR: With your number of columns being #{maze.columns},
-and your number of rows being #{maze.rows},you should load a string with a length 
-of #{maze.width * maze.length}. The length of the string that you entered was
-#{maze_s.length}. Load unsuccessful."
-		end
-		check_borders(maze_s)
-	end
-
-	def check_borders(maze_s)
-		width = maze.width
-		error = "ERROR: At least one of your borders has an open space.
-All of the maze's borders must be closed. Load unsuccessful."
-		indexed_maze = maze_s.split(//)
-		maze_s.size.times do |index|
-			if index < width || index > maze_s.size - width
-				if indexed_maze[index] == "0" then return error end
-			elsif index % width == 0 || index % width == width - 1
-				if indexed_maze[index] == "0" then return error end
-			end
-		end
-		wall_check
-	end
-
-	def wall_check
-		maze_print = maze.draw_maze
-		if maze_print.include?('||')
-			return "ERROR: Your maze contains walls that are next to each other. Load unsuccessful."
-		end
-		check_misplaced(maze_print)
-		cell_check
-	end
-
-	def check_misplaced(maze_print)
-		count = 1
-		maze_print.each_line do |row|
-			(maze.columns).times do |index|
-				if row[index] == "|" && !index.even?
-					return """ERROR: You have a wall in the place of a cell. In every row, a wall
-can only be placed in an even index, while all odd indexes are meant for cell spots. Load unsuccessful."""
-				elsif !count.even? && index.even?
-					if row[index] == " "
-						return """ERROR: You have a space on an index where only walls are allowed. Load unsuccessful."""
-					end
-				end 
-			end
-			count += 1
-		end		
-	end
-
-	def cell_check
-		maze_a = maze.maze_a
-		(1...maze.length - 1).each do |row_ind|
-			(1...maze.width - 1).each do|col_ind|
-				num_walls = invalid_cell(row_ind, col_ind, maze_a)
-				if num_walls == 4 || num_walls == 0
-					return """ERROR: One of your cells are invalid,
-because it contains either 0 or 4 walls. Load unsuccessful."""
-				end
-			end
-		end 
-		return true
-	end
-
-	def invalid_cell(x_val, y_val, maze_a)
-		 count = 0
-		 adjacent_val = [1, -1]
-		 (0..1).each do |adj|
-		 	if maze_a.fetch(x_val + adjacent_val[adj]).fetch(y_val) == "1" then count += 1 end
-		 	if maze_a.fetch(x_val).fetch(y_val + adjacent_val[adj]) == "1" then count += 1 end
-		 end
-		 return count
-	end
-
-	def loaded?
-		if maze.maze_s == nil
-			return "ERROR: Cannot display maze because you have not loaded the maze yet."
-		else
-			return true
-		end
-	end
-
-	def redesign()
+		def redesign()
 		@maze_a = Array.new(length){|i| Array.new(width) { |i| "1"}}
 		reset_cells
 		create_walls
@@ -369,6 +277,99 @@ because it contains either 0 or 4 walls. Load unsuccessful."""
 			maze_a.fetch(row)[col - 1] = w_or_s
 		end
 	end
+end
+
+class Maze_Validate
+	attr_reader :maze
+
+	def initialize(maze)
+		@maze = maze
+	end
+
+	def validate(maze_s)
+		if maze_s.size != maze.width * maze.length
+			return "ERROR: With your number of columns being #{maze.columns},
+and your number of rows being #{maze.rows},you should load a string with a length 
+of #{maze.width * maze.length}. The length of the string that you entered was
+#{maze_s.length}. Load unsuccessful."
+		end
+		check_borders(maze_s)
+	end
+
+	def check_borders(maze_s)
+		width = maze.width
+		error = "ERROR: At least one of your borders has an open space.
+All of the maze's borders must be closed. Load unsuccessful."
+		indexed_maze = maze_s.split(//)
+		maze_s.size.times do |index|
+			if index < width || index > maze_s.size - width
+				if indexed_maze[index] == "0" then return error end
+			elsif index % width == 0 || index % width == width - 1
+				if indexed_maze[index] == "0" then return error end
+			end
+		end
+		wall_check
+	end
+
+	def wall_check
+		maze_print = maze.draw_maze
+		if maze_print.include?('||')
+			return "ERROR: Your maze contains walls that are next to each other. Load unsuccessful."
+		end
+		check_misplaced(maze_print)
+		cell_check
+	end
+
+	def check_misplaced(maze_print)
+		count = 1
+		maze_print.each_line do |row|
+			(maze.columns).times do |index|
+				if row[index] == "|" && !index.even?
+					return """ERROR: You have a wall in the place of a cell. In every row, a wall
+can only be placed in an even index, while all odd indexes are meant for cell spots. Load unsuccessful."""
+				elsif !count.even? && index.even?
+					if row[index] == " "
+						return """ERROR: You have a space on an index where only walls are allowed. Load unsuccessful."""
+					end
+				end 
+			end
+			count += 1
+		end		
+	end
+
+	def cell_check
+		maze_a = maze.maze_a
+		(1...maze.length - 1).each do |row_ind|
+			(1...maze.width - 1).each do|col_ind|
+				num_walls = invalid_cell(row_ind, col_ind, maze_a)
+				if num_walls == 4 || num_walls == 0
+					return """ERROR: One of your cells are invalid,
+because it contains either 0 or 4 walls. Load unsuccessful."""
+				end
+			end
+		end 
+		return true
+	end
+
+	def invalid_cell(x_val, y_val, maze_a)
+		 count = 0
+		 adjacent_val = [1, -1]
+		 (0..1).each do |adj|
+		 	if maze_a.fetch(x_val + adjacent_val[adj]).fetch(y_val) == "1" then count += 1 end
+		 	if maze_a.fetch(x_val).fetch(y_val + adjacent_val[adj]) == "1" then count += 1 end
+		 end
+		 return count
+	end
+
+	def loaded?
+		if maze.maze_s == nil
+			return "ERROR: Cannot display maze because you have not loaded the maze yet."
+		else
+			return true
+		end
+	end
+
+
 end
 
 class Point

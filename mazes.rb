@@ -67,17 +67,21 @@ class Maze
 	def draw_positions
 		(1...length - 1).each do |row_ind|
 			(0... width).each do |col_ind|
-				if maze_a.fetch(row_ind)[col_ind] == "0"
-					@maze_display += " "
-				elsif row_ind.even? && !col_ind.even?
-					@maze_display += "-"
-				elsif row_ind.even? && col_ind.even?
-					@maze_display += "+"
-				else 
-					@maze_display += "|"
-				end
+				determine_symbol(row_ind, col_ind)
 			end
 			@maze_display += "\n"
+		end
+	end
+
+	def determine_symbol(row_ind, col_ind)
+		if maze_a.fetch(row_ind)[col_ind] == "0"
+			@maze_display += " "
+		elsif row_ind.even? && !col_ind.even?
+			@maze_display += "-"
+		elsif row_ind.even? && col_ind.even?
+			@maze_display += "+"
+		else 
+			@maze_display += "|"
 		end
 	end
 		def solve(params = {})
@@ -101,7 +105,7 @@ class Maze
 			puts "Untraceable: There is no path between these two points."
 		end
 	end
-	private
+
 	def steps_taken
 		mvmnt = ["Right", "Down", "Left", "Up"]
 		stack = Array.new()

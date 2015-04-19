@@ -216,7 +216,7 @@ class Maze
 				spaces = adj_walls(row, col)
 				if spaces.empty?
 					walls = non_borders(row, col)
-					construct(row, col, walls[rand(walls.length)], "0")
+					construct(row, col, walls[rand(walls.size)], "0")
 				end
 			end
 		end
@@ -224,15 +224,25 @@ class Maze
 
 	def non_borders(row, col) 
 		walls = [0, 1, 2, 3]
-		if row + 1 == width
-			walls.delete_if{|x, y| y == 2}
+		walls = exclude_top_bottom(col, walls)
+		walls =exclude_maze_sides(row, walls)
+		return walls
+	end
+
+	def exclude_maze_sides(row, walls)
+		if row + 1 == length - 1
+			walls.delete(2)
 		elsif row - 1 == 0
-			walls.delete_if{|x, y| y == 0}
+			walls.delete(0)
 		end
+		return walls
+	end 
+
+	def exclude_top_bottom(col, walls)
 		if col - 1 == 0
-			walls.delete_if{|x, y| y == 3}
-		elsif col + 1 == length
-			walls.delete_if{|x, y| y == 1}
+			walls.delete(3)
+		elsif col + 1 == width - 1
+			walls.delete(1)
 		end
 		return walls
 	end
@@ -256,8 +266,10 @@ class Maze
 
 	def choose_sides(spaces, row, col)
 		if spaces.empty?
-			choose_side = rand(0..3)
-			construct(row,col, choose_side, "0")
+			walls = non_borders(row, col)
+			construct(row, col, walls[rand(walls.size)], "0")
+			# choose_side = rand(0..3)
+			# construct(row,col, choose_side, "0")
 		else
 			(0...3).each do |mult|
 				prob = (3 - mult) * 3
@@ -399,11 +411,12 @@ end
  maze_test = Maze.new(4,4)
  maze_test.load("111111111100010001111010101100010101101110101100000101111011101100000101111111111")
  maze_test.display
- maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
+ #maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
  maze_test.redesign()
  maze_test.display
 
-# maze_test = Maze.new(4,5)
-# maze_test.load("111111111100010001111010101100010101101110101100000101111011101101000101101010101101010101111111111")
-# puts maze_test.display
-# maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
+ # maze_test = Maze.new(4,5)
+ # maze_test.load("111111111100010001111010101100010101101110101100000101111011101101000101101010101101010101111111111")
+ # puts maze_test.display
+ # #maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
+ # maze_test.redesign()

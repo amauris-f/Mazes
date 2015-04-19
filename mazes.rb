@@ -1,8 +1,10 @@
-#http://stackoverflow.com/questions/28696109/display-extended-ascii-character-in-ruby
 require './maze_extend.rb'
+require './maze_redesign.rb'
+gem 'minitest'
+
 class Maze
-	attr_reader :columns, :rows, :maze_check, :maze_s, :width, :length
-	attr_reader :maze_a
+	attr_reader :columns, :rows, :maze_s, :width, :length, :maze_a
+	@maze_check
 	@maze_s = nil
 	@maze_a
 	@maze_display
@@ -19,7 +21,7 @@ class Maze
 		@maze_s = maze_s
 		@maze_a = Array.new(length){Array.new(width)}
 		convert_maze_to_a
-		validate_maze = maze_check.validate(maze_s)
+		validate_maze = @maze_check.validate(maze_s)
 		if validate_maze != true
 			@maze_s = nil
 			return puts validate_maze
@@ -27,11 +29,19 @@ class Maze
 	end
 
 	def display
-		check = maze_check.loaded?
+		check = @maze_check.loaded?
 		if check != true then return check end
-		return @maze_display
+		print @maze_display
+	end 
+
+	def draw_maze
+		@maze_display = ""
+		draw_borders
+		draw_positions
+		draw_borders
 	end
 
+	private
 	def convert_maze_to_a
 		position = 0
 		(0...length).each do |row_ind|
@@ -42,16 +52,13 @@ class Maze
 		end
 	end
 
-	def draw_maze
-		@maze_display = ""
-		draw_borders
-		draw_positions
-		draw_borders
-	end
-
 	def draw_borders
-		width.times do
-			@maze_display += "-"
+		(1..width).each do |i|
+			if i.even?
+				@maze_display += "-"
+			else 
+				@maze_display += "+"
+			end
 		end
 		@maze_display += "\n"
 	end
@@ -61,9 +68,11 @@ class Maze
 			(0... width).each do |col_ind|
 				if maze_a.fetch(row_ind)[col_ind] == "0"
 					@maze_display += " "
-				elsif row_ind % 2 == 0
+				elsif row_ind.even? && !col_ind.even?
 					@maze_display += "-"
-				else
+				elsif row_ind.even? && col_ind.even?
+					@maze_display += "+"
+				else 
 					@maze_display += "|"
 				end
 			end
@@ -82,7 +91,7 @@ class Maze_Validate
 	def validate(maze_s)
 		if maze_s.size != maze.width * maze.length
 			return "ERROR: With your number of columns being #{maze.columns},
-and your number of rows being #{maze.rows},you should load a string with a length
+and your number of rows being #{maze.rows},you should load a string with a length 
 of #{maze.width * maze.length}. The length of the string that you entered was
 #{maze_s.length}. Load unsuccessful."
 		end
@@ -109,15 +118,25 @@ All of the maze's borders must be closed. Load unsuccessful."
 		if maze_print.include?('||')
 			return "ERROR: Your maze contains walls that are next to each other. Load unsuccessful."
 		end
+		check_misplaced(maze_print)
+		cell_check
+	end
+
+	def check_misplaced(maze_print)
+		count = 1
 		maze_print.each_line do |row|
 			(maze.columns).times do |index|
-				if row[index] == "|" && index % 2 == 1
+				if row[index] == "|" && !index.even?
 					return """ERROR: You have a wall in the place of a cell. In every row, a wall
 can only be placed in an even index, while all odd indexes are meant for cell spots. Load unsuccessful."""
-				end
+				elsif !count.even? && index.even?
+					if row[index] == " "
+						return """ERROR: You have a space on an index where only walls are allowed. Load unsuccessful."""
+					end
+				end 
 			end
-		end
-		cell_check
+			count += 1
+		end		
 	end
 
 	def cell_check
@@ -130,7 +149,7 @@ can only be placed in an even index, while all odd indexes are meant for cell sp
 because it contains either 0 or 4 walls. Load unsuccessful."""
 				end
 			end
-		end
+		end 
 		return true
 	end
 
@@ -155,15 +174,14 @@ end
 
 
 
-maze_test = Maze.new(4,4)
-maze_test.load("111111111100010001111011101100010101101110101100000101111011101100000101111111111")
-puts maze_test.display
+ maze_test = Maze.new(4,4)
+ maze_test.load("111111111100010001111010101100010101101110101100000101111011101100000101111111111")
+ maze_test.display
+ maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
+ maze_test.redesign()
+ maze_test.display
 
-point = Point.new(5, 6)
-maze_test.trace(:begX => 0, :begY => 0, :endX =>0, :endY =>3)
-
-maze_test = Maze.new(4,5)
-maze_test.load("111111111100010001111010101100010101101110101100000101111011101101000101100010001101010101111111111")
-puts maze_test.display
-
-maze_test.trace(:begX => 0, :begY => 0, :endX =>3, :endY =>4)
+# maze_test = Maze.new(4,5)
+# maze_test.load("111111111100010001111010101100010101101110101100000101111011101101000101101010101101010101111111111")
+# puts maze_test.display
+# maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)

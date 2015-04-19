@@ -1,8 +1,12 @@
+#This file contains extended methods of the Maze class, as well as a Point class
+#which represents cell positions in the maze
 class Maze
 	@visited
 	@all_paths
 
 	def solve(params = {})
+		check = @maze_check.loaded?
+		if check != true then return check end
 		result = traverse(params)
 		if result
 			puts "There is a path between these two points. Use trace to look at the steps."
@@ -12,6 +16,8 @@ class Maze
 	end
 
 	def trace(params = {})
+		check = @maze_check.loaded?
+		if check != true then return check end
 		traceable = traverse(params)
 		if traceable
 			steps_taken
@@ -19,18 +25,22 @@ class Maze
 			puts "Untraceable: There is no path between these two points."
 		end
 	end
-
+	private
 	def steps_taken
 		mvmnt = ["Right", "Down", "Left", "Up"]
 		stack = Array.new()
+		add_to_stack(stack)
+		(stack.size).times do |step|
+			cell = stack.pop()
+			puts "#{step+1}. From cell: #{cell}, Move #{mvmnt[cell.dir]} to #{cell.next}."
+		end
+	end
+
+	def add_to_stack(stack)
 		transition = @all_paths.pop()
 		while transition.prev_step
 				transition = transition.prev_step
 				stack.push(transition)
-		end
-		(stack.size).times do |step|
-			cell = stack.pop()
-			puts "#{step+1}. From cell: #{cell}, Move #{mvmnt[cell.dir]} to #{cell.next}."
 		end
 	end
 
@@ -43,15 +53,13 @@ class Maze
 		while !@all_paths.include?(end_point)
 			if @all_paths.empty? then return false end
 			trans = @all_paths.shift()
-			if !@visited.include?(trans)
-				one_step_moves(trans)
-				@visited.push(trans)
-			end
+			if !@visited.include?(trans) then one_step_moves(trans) end
 		end
 		return true
 	end
 
 	def one_step_moves(trans)
+		@visited.push(trans)
 		(0..3).each do |dir|
 			if valid_move?(trans, dir)
 				add_position(trans, dir)
@@ -64,7 +72,7 @@ class Maze
 		y_move = [0, 1, 0, -1]
 		new_x = trans.x + x_move[dir]
 		new_y = trans.y + y_move[dir]
-		new_pos = Point.new(new_y, new_y)
+		new_pos = Point.new(new_x, new_y)
 		marked?(trans, dir, new_pos)
 	end
 
@@ -77,10 +85,10 @@ class Maze
 		end
 	end
 
-	def valid_move?(trans, di)
+	def valid_move?(trans, dir)
 			col_ary = trans.x * 2 + 1
 			row_ary = trans.y * 2 + 1
-			case di
+			case dir
 			when 0
 				if maze_a.fetch(row_ary)[col_ary + 1] == "0" then return true end
 			when 1
@@ -93,12 +101,8 @@ class Maze
 				return false
 			end
 	end
-
-	def redesign()
-
-	end
-
 end
+
 
 class Point
 	attr_reader :x, :y

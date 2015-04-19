@@ -267,9 +267,8 @@ class Maze
 	def choose_sides(spaces, row, col)
 		if spaces.empty?
 			walls = non_borders(row, col)
-			construct(row, col, walls[rand(walls.size)], "0")
-			# choose_side = rand(0..3)
-			# construct(row,col, choose_side, "0")
+			choose_side =  walls[rand(walls.size)]
+			construct(row, col, choose_side, "0")
 		else
 			(0...3).each do |mult|
 				prob = (3 - mult) * 3

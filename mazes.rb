@@ -84,6 +84,7 @@ class Maze
 			@maze_display += "|"
 		end
 	end
+
 		def solve(params = {})
 		check = @maze_check.loaded?
 		if check != true then return check end
@@ -181,117 +182,123 @@ class Maze
 				return false
 			end
 	end
-		def redesign()
-		@maze_a = Array.new(length){|i| Array.new(width) { |i| "1"}}
-		reset_cells
-		create_walls
-		check_for_invalid
+	def redesign()
+		test = Maze_redesign.new(self)
+		@maze_a = test.redesign_maze()
+		#@maze_a = new_a
 		draw_maze
 	end
-	private
-	def reset_cells
-		(1...length - 1).each do |row|
-			(1...width - 1).each do |col|
-				if row.even? && col.even?
-					maze_a.fetch(row)[col] = "1"
-				else
-					maze_a.fetch(row)[col] = "0"
-				end
-			end
-		end
-	end
+	# def redesign()
+	# 	@maze_a = Array.new(length){|i| Array.new(width) { |i| "1"}}
+	# 	reset_cells
+	# 	create_walls
+	# 	check_for_invalid
+	# 	draw_maze
+	# end
+	# private
+	# def reset_cells
+	# 	(1...length - 1).each do |row|
+	# 		(1...width - 1).each do |col|
+	# 			if row.even? && col.even?
+	# 				maze_a.fetch(row)[col] = "1"
+	# 			else
+	# 				maze_a.fetch(row)[col] = "0"
+	# 			end
+	# 		end
+	# 	end
+	# end
 
-	def create_walls
-		(1...length - 1).step(2) do |row|
-			(1...width).step(2) do |col|
-				spaces = adj_walls(row, col)
-				choose_sides(spaces, row, col)
-			end
-		end
-	end
+	# def create_walls
+	# 	(1...length - 1).step(2) do |row|
+	# 		(1...width).step(2) do |col|
+	# 			spaces = adj_walls(row, col)
+	# 			choose_sides(spaces, row, col)
+	# 		end
+	# 	end
+	# end
 
-	def check_for_invalid
-		(1...length - 1).step(2) do |row|
-			(1...width).step(2) do |col|
-				spaces = adj_walls(row, col)
-				if spaces.empty?
-					walls = non_borders(row, col)
-					construct(row, col, walls[rand(walls.size)], "0")
-				end
-			end
-		end
-	end
+	# def check_for_invalid
+	# 	(1...length - 1).step(2) do |row|
+	# 		(1...width).step(2) do |col|
+	# 			spaces = adj_walls(row, col)
+	# 			if spaces.empty?
+	# 				walls = non_borders(row, col)
+	# 				construct(row, col, walls[rand(walls.size)], "0")
+	# 			end
+	# 		end
+	# 	end
+	# end
 
-	def non_borders(row, col) 
-		walls = [0, 1, 2, 3]
-		walls = exclude_top_bottom(col, walls)
-		walls =exclude_maze_sides(row, walls)
-		return walls
-	end
+	# def non_borders(row, col) 
+	# 	walls = [0, 1, 2, 3]
+	# 	walls = exclude_top_bottom(col, walls)
+	# 	walls =exclude_maze_sides(row, walls)
+	# 	return walls
+	# end
 
-	def exclude_maze_sides(row, walls)
-		if row + 1 == length - 1
-			walls.delete(2)
-		elsif row - 1 == 0
-			walls.delete(0)
-		end
-		return walls
-	end 
+	# def exclude_maze_sides(row, walls)
+	# 	if row + 1 == length - 1
+	# 		walls.delete(2)
+	# 	elsif row - 1 == 0
+	# 		walls.delete(0)
+	# 	end
+	# 	return walls
+	# end 
 
-	def exclude_top_bottom(col, walls)
-		if col - 1 == 0
-			walls.delete(3)
-		elsif col + 1 == width - 1
-			walls.delete(1)
-		end
-		return walls
-	end
+	# def exclude_top_bottom(col, walls)
+	# 	if col - 1 == 0
+	# 		walls.delete(3)
+	# 	elsif col + 1 == width - 1
+	# 		walls.delete(1)
+	# 	end
+	# 	return walls
+	# end
 
-	def adj_walls(row, col)
-		wall = Array.new()
-		sides = [0, 1, 2, 3]
-		wall = find_walls(row, col, 1, 1, wall)
-		wall = find_walls(row, col, -1, 0, wall)
-		spaces_left = sides - wall
-		return spaces_left
-	end
+	# def adj_walls(row, col)
+	# 	wall = Array.new()
+	# 	sides = [0, 1, 2, 3]
+	# 	wall = find_walls(row, col, 1, 1, wall)
+	# 	wall = find_walls(row, col, -1, 0, wall)
+	# 	spaces_left = sides - wall
+	# 	return spaces_left
+	# end
 
-	def find_walls(row, col, int, dir, wall)
-		x_val = 3 - 2 * (dir)
-		y_val = 2 * dir
-		if maze_a.fetch(row + int)[col] == "1" then wall.push(y_val) end
-		if maze_a.fetch(row)[col + int] == "1" then wall.push(x_val) end
-		return wall
-	end
+	# def find_walls(row, col, int, dir, wall)
+	# 	x_val = 3 - 2 * (dir)
+	# 	y_val = 2 * dir
+	# 	if maze_a.fetch(row + int)[col] == "1" then wall.push(y_val) end
+	# 	if maze_a.fetch(row)[col + int] == "1" then wall.push(x_val) end
+	# 	return wall
+	# end
 
-	def choose_sides(spaces, row, col)
-		if spaces.empty?
-			walls = non_borders(row, col)
-			choose_side =  walls[rand(walls.size)]
-			construct(row, col, choose_side, "0")
-		else
-			(0...3).each do |mult|
-				prob = (3 - mult) * 3
-				if spaces.size > 2 && rand(0...10) >= prob
-					choose_side = spaces.delete_at(rand(spaces.length))
-					construct(row, col, choose_side, "1")
-				end
-			end
-		end
-	end
+	# def choose_sides(spaces, row, col)
+	# 	if spaces.empty?
+	# 		walls = non_borders(row, col)
+	# 		choose_side =  walls[rand(walls.size)]
+	# 		construct(row, col, choose_side, "0")
+	# 	else
+	# 		(0...3).each do |mult|
+	# 			prob = (3 - mult) * 3
+	# 			if spaces.size > 2 && rand(0...10) >= prob
+	# 				choose_side = spaces.delete_at(rand(spaces.length))
+	# 				construct(row, col, choose_side, "1")
+	# 			end
+	# 		end
+	# 	end
+	# end
 
-	def construct(row, col, choose_side, w_or_s)
-		case choose_side
-		when 0
-			maze_a.fetch(row - 1)[col] = w_or_s
-		when 1
-			maze_a.fetch(row)[col + 1] = w_or_s
-		when 2
-			maze_a.fetch(row + 1)[col] = w_or_s
-		else
-			maze_a.fetch(row)[col - 1] = w_or_s
-		end
-	end
+	# def construct(row, col, choose_side, w_or_s)
+	# 	case choose_side
+	# 	when 0
+	# 		maze_a.fetch(row - 1)[col] = w_or_s
+	# 	when 1
+	# 		maze_a.fetch(row)[col + 1] = w_or_s
+	# 	when 2
+	# 		maze_a.fetch(row + 1)[col] = w_or_s
+	# 	else
+	# 		maze_a.fetch(row)[col - 1] = w_or_s
+	# 	end
+	# end
 end
 
 class Maze_Validate
@@ -410,7 +417,7 @@ end
  maze_test = Maze.new(4,4)
  maze_test.load("111111111100010001111010101100010101101110101100000101111011101100000101111111111")
  maze_test.display
- #maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
+ maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
  maze_test.redesign()
  maze_test.display
 

@@ -53,7 +53,7 @@ class Maze_Redesign
 		end
 	end
 
-	def non_borders(row, col) 
+	def non_borders(row, col)
 		walls = [0, 1, 2, 3]
 		walls = exclude_top_bottom(col, walls)
 		walls =exclude_maze_sides(row, walls)
@@ -67,7 +67,7 @@ class Maze_Redesign
 			walls.delete(0)
 		end
 		return walls
-	end 
+	end
 
 	def exclude_top_bottom(col, walls)
 		if col - 1 == 0

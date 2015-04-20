@@ -1,0 +1,1 @@
+Maze class that depends on user input. Creates mazes of different sizes (based on given number of rows and columns). This class can determine if there exists a path between two cells in the maze, where one cell can reach the other, and can also trace the path. There is also a redesign method, which creates a new maze with the same size as the given maze.

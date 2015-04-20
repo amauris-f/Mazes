@@ -1,5 +1,6 @@
 #This file contains extended methods of the Maze class, as well as a Cell class
 #which represents cell positions in the maze
+#Maze_Ext_Methods contains required functions for solve and trace methods
 
 class Maze_Ext_Methods
 	attr_accessor :maze
@@ -17,8 +18,10 @@ class Maze_Ext_Methods
 		result = traverse(params)
 		if result
 			puts "There is a path between these two points. Use trace to look at the steps."
+			return true
 		else
 			puts "Unsolvable: There is no path between these two points."
+			return false
 		end
 	end
 
@@ -27,8 +30,10 @@ class Maze_Ext_Methods
 		traceable = traverse(params)
 		if traceable
 			steps_taken
+			return true
 		else
 			puts "Untraceable: There is no path between these two points."
+			return false
 		end
 	end
 
@@ -109,6 +114,7 @@ class Maze_Ext_Methods
 	end
 end
 
+#Cell class represents cells in maze
 class Cell
 	attr_reader :x, :y
 	attr_accessor :prev_step, :dir, :next

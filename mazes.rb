@@ -1,7 +1,8 @@
 require './maze_extend.rb'
 require './maze_redesign.rb'
 gem 'minitest'
-
+#Maze class with its initialize, load, display, trace and solve functions
+#private methods are included that are required to work with public methods
 class Maze
 	attr_reader :columns, :rows, :maze_s, :width, :length, :maze_a
 	@maze_check
@@ -32,7 +33,7 @@ class Maze
 	def display
 		check = @maze_check.loaded?
 		if check != true then return check end
-		print @maze_display
+		return @maze_display
 	end 
 
 	def draw_maze
@@ -41,6 +42,37 @@ class Maze
 		draw_positions
 		draw_borders
 	end
+
+	def trace(params)
+		check = @maze_check.loaded?
+		if check != true then return check end
+		@trace_or_solve.trace_maze(params)
+	end
+
+	def solve(params)
+		check = @maze_check.loaded?
+		if check != true then return check end
+		@trace_or_solve.solve_maze(params)
+	end
+
+
+	def redesign()
+		new_maze = Maze_Redesign.new(self)
+		@maze_a = new_maze.reconstruct()
+		redesign_string
+		draw_maze
+	end
+
+	def redesign_string
+		@maze_s = ""
+		(0...length).each do |row_ind|
+			(0...width).each do |col_ind|
+				@maze_s += maze_a.fetch(row_ind)[col_ind].to_s
+			end
+		end
+	end
+
+	private
 
 	def convert_maze_to_a
 		position = 0
@@ -83,25 +115,11 @@ class Maze
 			@maze_display += "|"
 		end
 	end
-	def trace(params)
-		check = @maze_check.loaded?
-		if check != true then return check end
-		@trace_or_solve.trace_maze(params)
-	end
 
-	def solve(params)
-		check = @maze_check.loaded?
-		if check != true then return check end
-		@trace_or_solve.solve_maze(params)
-	end
-
-	def redesign()
-		new_maze = Maze_Redesign.new(self)
-		@maze_a = new_maze.reconstruct()
-		draw_maze
-	end
 end
 
+#Maze_Validate will make sure that the maze is valid 
+#so that the Maze class functions can be sued
 class Maze_Validate
 	attr_reader :maze
 
@@ -118,6 +136,16 @@ of #{maze.width * maze.length}. The length of the string that you entered was
 		end
 		check_borders(maze_s)
 	end
+
+	def loaded?
+		if maze.maze_s == nil
+			return "ERROR: Cannot display maze because you have not loaded the maze yet."
+		else
+			return true
+		end
+	end
+
+	private
 
 	def check_borders(maze_s)
 		width = maze.width
@@ -162,8 +190,8 @@ can only be placed in an even index, while all odd indexes are meant for cell sp
 
 	def cell_check
 		maze_a = maze.maze_a
-		(1...maze.length - 1).each do |row_ind|
-			(1...maze.width - 1).each do|col_ind|
+		(1...maze.length - 1).step(2) do |row_ind|
+			(1...maze.width - 1).step(2) do|col_ind|
 				num_walls = invalid_cell(row_ind, col_ind, maze_a)
 				if num_walls == 4 || num_walls == 0
 					return """ERROR: One of your cells are invalid,
@@ -183,28 +211,6 @@ because it contains either 0 or 4 walls. Load unsuccessful."""
 		 end
 		 return count
 	end
-
-	def loaded?
-		if maze.maze_s == nil
-			return "ERROR: Cannot display maze because you have not loaded the maze yet."
-		else
-			return true
-		end
-	end
 end
 
 
-
- maze_test = Maze.new(4,4)
- maze_test.load("111111111100010001111010101100010101101110101100000101111011101100000101111111111")
- maze_test.display
-
- maze_test.redesign()
- maze_test.display
- maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
-
- # maze_test = Maze.new(4,5)
- # maze_test.load("111111111100010001111010101100010101101110101100000101111011101101000101101010101101010101111111111")
- # puts maze_test.display
- # #maze_test.trace(:begX=>0, :begY=>0, :endX=>3, :endY=>3)
- # maze_test.redesign()

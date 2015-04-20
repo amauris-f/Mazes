@@ -1,6 +1,4 @@
-# #This file contains the methods necessary to use the redesign method
-# class Maze
-
+#This file contains the methods necessary to use the redesign method
 class Maze_Redesign
 	attr_reader :maze, :length, :width
 	@maze_a
@@ -10,13 +8,12 @@ class Maze_Redesign
 		@length = maze.length
 		@width = maze.width
 		@maze_a = Array.new(@length){|i| Array.new(@width) { |i| "1"}}
-
 	end
 
 	def reconstruct()
 		reset_cells
 		create_walls
-		check_for_invalid
+		2.times do check_for_invalid end
 		return @maze_a
 	end
 	private
@@ -48,6 +45,9 @@ class Maze_Redesign
 				if spaces.empty?
 					walls = non_borders(row, col)
 					construct(row, col, walls[rand(walls.size)], "0")
+				elsif spaces.size == 4
+					walls = non_borders(row, col)
+					construct(row, col, walls[rand(0..3)], "1")
 				end
 			end
 		end
@@ -103,7 +103,7 @@ class Maze_Redesign
 		else
 			(0...3).each do |mult|
 				prob = (3 - mult) * 3
-				if spaces.size > 2 && rand(0...10) >= prob
+				if spaces.size > 1 && rand(0...10) <= prob
 					choose_side = spaces.delete_at(rand(spaces.length))
 					construct(row, col, choose_side, "1")
 				end
